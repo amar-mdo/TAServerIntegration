@@ -1,7 +1,6 @@
 ﻿Imports System
 Imports System.Net
 Imports ThinkAutomationCore
-Imports System.IO
 Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -11,38 +10,26 @@ Public Class Form1
     Private Sub BtnExit_Click(sender As Object, e As EventArgs) Handles BtnExit.Click
         Application.Exit()
     End Sub
-    Private Sub ListAccounts_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListAccounts.DoubleClick
-
+    Private Sub ListAccounts_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ListAccounts.SelectedIndexChanged
         If ListAccounts.SelectedItems.Count = 0 Then Exit Sub
+
         Dim SelectedAccount As String = ListAccounts.SelectedItems(0)
 
-        If SelectedAccount.Length = 0 Then
-            MsgBox("An Account Selection is required, by clicking the listed AccounName twice!")
-            Exit Sub
-        Else
-            Dim Confirmation As String = MsgBox("Do you want the Account details for (" + SelectedAccount + ") written to a Text File?", MsgBoxStyle.YesNo, "TA Server Automation")
+        ListTriggers.Items.Clear()
 
-            ListTriggers.Items.Clear()
-            ListActions.Items.Clear()
-            WebBrowser1.DocumentText = ""
-            LblAllTriggers.Text = "All Triggers"
-            LblAllActions.Text = "All Actions"
+        If SelectedAccount.Length = 0 Then Exit Sub Else ListAccountTriggers(SelectedAccount)
 
-            ListAccountTriggers(SelectedAccount)
 
-            If Confirmation = vbYes Then
-                WriteAccountDetailsToFile(SelectedAccount)
-            End If
-
-        End If
 
     End Sub
-    Private Sub ListTriggers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListTriggers.DoubleClick
+    Private Sub ListTriggers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListTriggers.SelectedIndexChanged
 
         If ListTriggers.SelectedItems.Count = 0 Then Exit Sub
 
         Dim SelectedAccount As String = ListTriggers.Items(0)
         Dim SelectedTrigger As String = ListTriggers.SelectedItems(0)
+
+
 
         ' First Clear the List and then fill the actions list
 
@@ -50,53 +37,28 @@ Public Class Form1
 
         ListTriggerActions(SelectedAccount, LTrim(SelectedTrigger))
 
-    End Sub
-    Private Sub WriteAccountDetailsToFile(AccountName As String)
-        If AccountName.Length = 0 Then Exit Sub
+        'Dim Action As Object
 
-        Dim fPath As String = "C:\MDO\ThinkAutomationTest\"
-        'Dim fFileName As String = AccountName + "-" + Now.ToString("s") + ".txt"
-        Dim fFileName As String = AccountName + ".txt"
+        'For Each Action In SelectedTrigger.ActionList
 
-        Dim sw As StreamWriter = Nothing
-        Try
-            Dim ThisAccount As ThinkAutomation.clsAccount
-            Dim ThisTrigger As ThinkAutomation.clsAccountTrigger
-            Dim blnAccountFound As Boolean
+        'Dim Item As New ListViewItem
 
-            sw = New StreamWriter(fPath + fFileName)
+        'Item.Text = Action.ClassName
 
-            blnAccountFound = False
+        'Item.Checked = Action.Enabled
 
-            ' login to ThinkAutomation on 127.0.0.1:8855
-            If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
-                For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
+        'Item.SubItems.Add(Action.ActionDescription)
 
-                    If ThisAccount.Name = AccountName Then
-                        blnAccountFound = True
-                        sw.WriteLine(ThisAccount.XML)
-                        ThisAccount.Triggers.Load()
-                        ' display all triggers for this account
-                        For Each ThisTrigger In ThisAccount.Triggers
-                            sw.WriteLine(ThisTrigger.XML)
-                        Next
-                    End If
+        'ListActions.Items.Add(Item)
 
-                Next
+        'Next
 
-                If Not blnAccountFound Then
-                    MsgBox("Could not find the Account. " & ThinkAutomation.SystemErrorLast)
-                End If
 
-            Else
-                MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
-            End If
 
-        Finally
-            If Not sw Is Nothing Then
-                sw.Dispose()
-            End If
-        End Try
+        ' fill the webbrowser with the Trigger HTML view
+
+        ' WebBrowser1.DocumentText = SelectedTrigger.HTML
+
 
 
     End Sub
@@ -225,7 +187,7 @@ Public Class Form1
         ' login to ThinkAutomation on 127.0.0.1:8855
         If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
             ' logged in OK
-            MsgBox("Logged In")
+            'MsgBox("Logged In")
 
             Dim Name As String = InputBox("Enter The Action Condition", "ThinkAutomation")
 
@@ -325,7 +287,6 @@ Public Class Form1
 
         ' login to ThinkAutomation on 127.0.0.1:8855
         If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
-
             For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
                 ' Add each account to the ListBox
                 ListAccounts.Items.Add(ThisAccount.Name)
@@ -348,7 +309,6 @@ Public Class Form1
 
                 If ThisAccount.Name = AccountName Then
                     blnAccountFound = True
-                    LblAllTriggers.Text = "All Trigger for the Account: " + AccountName
                     ListTriggers.Items.Add(AccountName)
                     ThisAccount.Triggers.Load()
                     ' display all triggers for this account
@@ -356,7 +316,6 @@ Public Class Form1
                         ListTriggers.Items.Add("     " & ThisTrigger.Name)
                     Next
                 End If
-
             Next
 
             If Not blnAccountFound Then
@@ -364,7 +323,7 @@ Public Class Form1
             End If
 
         Else
-            MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
+                MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
         End If
     End Sub
 
@@ -382,7 +341,7 @@ Public Class Form1
                 If ThisAccount.Name = AccountName Then
                     ThisAccount.Triggers.Load()
                     ' display all triggers for this account
-                    LblAllActions.Text = "All Actions for Trigger: " + TriggerName
+
                     For Each ThisTrigger In ThisAccount.Triggers
                         If ThisTrigger.Name = TriggerName Then
                             For Each ThisAction In ThisTrigger.ActionList
@@ -392,7 +351,8 @@ Public Class Form1
 
                             Next
                             ' fill the webbrowser with the Trigger HTML view
-                            WebBrowser1.DocumentText = ThisTrigger.HTML
+                            'WebBrowser1.DocumentText = ThisTrigger.HTML
+                            WebBrowser1.DocumentText = ThisTrigger.XML
                         End If
                     Next
                 End If
@@ -422,5 +382,6 @@ Public Class Form1
         AddAction(Name)
 
     End Sub
+
 
 End Class

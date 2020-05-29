@@ -31,18 +31,15 @@ Partial Class Form1
         Me.WebBrowser1 = New System.Windows.Forms.WebBrowser()
         Me.ListAccounts = New System.Windows.Forms.ListBox()
         Me.Button1 = New System.Windows.Forms.Button()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.LblAllTriggers = New System.Windows.Forms.Label()
-        Me.LblAllActions = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'BtnExit
         '
         Me.BtnExit.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnExit.Location = New System.Drawing.Point(1016, 1019)
-        Me.BtnExit.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnExit.Location = New System.Drawing.Point(739, 680)
+        Me.BtnExit.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.BtnExit.Name = "BtnExit"
-        Me.BtnExit.Size = New System.Drawing.Size(150, 54)
+        Me.BtnExit.Size = New System.Drawing.Size(109, 36)
         Me.BtnExit.TabIndex = 1
         Me.BtnExit.Text = "Exit"
         Me.BtnExit.UseVisualStyleBackColor = True
@@ -50,10 +47,10 @@ Partial Class Form1
         'BtnAddAccount
         '
         Me.BtnAddAccount.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnAddAccount.Location = New System.Drawing.Point(493, 1025)
-        Me.BtnAddAccount.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnAddAccount.Location = New System.Drawing.Point(359, 683)
+        Me.BtnAddAccount.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.BtnAddAccount.Name = "BtnAddAccount"
-        Me.BtnAddAccount.Size = New System.Drawing.Size(150, 50)
+        Me.BtnAddAccount.Size = New System.Drawing.Size(109, 33)
         Me.BtnAddAccount.TabIndex = 2
         Me.BtnAddAccount.Text = "Add Account"
         Me.BtnAddAccount.UseVisualStyleBackColor = True
@@ -61,10 +58,10 @@ Partial Class Form1
         'BtnAddTrigger
         '
         Me.BtnAddTrigger.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnAddTrigger.Location = New System.Drawing.Point(667, 1025)
-        Me.BtnAddTrigger.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnAddTrigger.Location = New System.Drawing.Point(485, 683)
+        Me.BtnAddTrigger.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.BtnAddTrigger.Name = "BtnAddTrigger"
-        Me.BtnAddTrigger.Size = New System.Drawing.Size(150, 50)
+        Me.BtnAddTrigger.Size = New System.Drawing.Size(109, 33)
         Me.BtnAddTrigger.TabIndex = 3
         Me.BtnAddTrigger.Text = "Add Trigger"
         Me.BtnAddTrigger.UseVisualStyleBackColor = True
@@ -72,10 +69,10 @@ Partial Class Form1
         'BtnListAccounts
         '
         Me.BtnListAccounts.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnListAccounts.Location = New System.Drawing.Point(28, 1019)
-        Me.BtnListAccounts.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnListAccounts.Location = New System.Drawing.Point(20, 680)
+        Me.BtnListAccounts.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.BtnListAccounts.Name = "BtnListAccounts"
-        Me.BtnListAccounts.Size = New System.Drawing.Size(150, 50)
+        Me.BtnListAccounts.Size = New System.Drawing.Size(109, 33)
         Me.BtnListAccounts.TabIndex = 4
         Me.BtnListAccounts.Text = "List Accounts"
         Me.BtnListAccounts.UseVisualStyleBackColor = True
@@ -84,99 +81,60 @@ Partial Class Form1
         '
         Me.ListActions.ForeColor = System.Drawing.SystemColors.Highlight
         Me.ListActions.FormattingEnabled = True
-        Me.ListActions.ItemHeight = 24
-        Me.ListActions.Location = New System.Drawing.Point(28, 489)
-        Me.ListActions.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.ListActions.ItemHeight = 16
+        Me.ListActions.Location = New System.Drawing.Point(20, 301)
+        Me.ListActions.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.ListActions.Name = "ListActions"
-        Me.ListActions.Size = New System.Drawing.Size(1141, 172)
+        Me.ListActions.Size = New System.Drawing.Size(830, 116)
         Me.ListActions.TabIndex = 6
         '
         'ListTriggers
         '
         Me.ListTriggers.ForeColor = System.Drawing.SystemColors.Highlight
         Me.ListTriggers.FormattingEnabled = True
-        Me.ListTriggers.ItemHeight = 24
-        Me.ListTriggers.Location = New System.Drawing.Point(31, 271)
-        Me.ListTriggers.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.ListTriggers.ItemHeight = 16
+        Me.ListTriggers.Location = New System.Drawing.Point(23, 181)
+        Me.ListTriggers.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.ListTriggers.Name = "ListTriggers"
-        Me.ListTriggers.Size = New System.Drawing.Size(1141, 172)
+        Me.ListTriggers.Size = New System.Drawing.Size(830, 116)
         Me.ListTriggers.TabIndex = 7
         '
         'WebBrowser1
         '
-        Me.WebBrowser1.Location = New System.Drawing.Point(31, 689)
-        Me.WebBrowser1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
-        Me.WebBrowser1.MinimumSize = New System.Drawing.Size(20, 20)
+        Me.WebBrowser1.Location = New System.Drawing.Point(23, 430)
+        Me.WebBrowser1.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.WebBrowser1.MinimumSize = New System.Drawing.Size(15, 14)
         Me.WebBrowser1.Name = "WebBrowser1"
-        Me.WebBrowser1.Size = New System.Drawing.Size(1139, 323)
+        Me.WebBrowser1.Size = New System.Drawing.Size(828, 234)
         Me.WebBrowser1.TabIndex = 8
         '
         'ListAccounts
         '
         Me.ListAccounts.ForeColor = System.Drawing.SystemColors.Highlight
         Me.ListAccounts.FormattingEnabled = True
-        Me.ListAccounts.ItemHeight = 24
-        Me.ListAccounts.Location = New System.Drawing.Point(37, 55)
-        Me.ListAccounts.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.ListAccounts.ItemHeight = 16
+        Me.ListAccounts.Location = New System.Drawing.Point(27, 37)
+        Me.ListAccounts.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.ListAccounts.Name = "ListAccounts"
-        Me.ListAccounts.Size = New System.Drawing.Size(1126, 172)
+        Me.ListAccounts.Size = New System.Drawing.Size(820, 116)
         Me.ListAccounts.TabIndex = 9
         '
         'Button1
         '
         Me.Button1.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.Button1.Location = New System.Drawing.Point(843, 1021)
-        Me.Button1.Margin = New System.Windows.Forms.Padding(6, 6, 6, 6)
+        Me.Button1.Location = New System.Drawing.Point(613, 681)
+        Me.Button1.Margin = New System.Windows.Forms.Padding(4)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(149, 50)
+        Me.Button1.Size = New System.Drawing.Size(108, 33)
         Me.Button1.TabIndex = 10
         Me.Button1.Text = "Add Action"
         Me.Button1.UseVisualStyleBackColor = True
         '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.Label1.Location = New System.Drawing.Point(31, 28)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(6, 0, 6, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(143, 25)
-        Me.Label1.TabIndex = 11
-        Me.Label1.Text = "All Accounts"
-        '
-        'LblAllTriggers
-        '
-        Me.LblAllTriggers.AutoSize = True
-        Me.LblAllTriggers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblAllTriggers.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.LblAllTriggers.Location = New System.Drawing.Point(31, 244)
-        Me.LblAllTriggers.Margin = New System.Windows.Forms.Padding(6, 0, 6, 0)
-        Me.LblAllTriggers.Name = "LblAllTriggers"
-        Me.LblAllTriggers.Size = New System.Drawing.Size(133, 25)
-        Me.LblAllTriggers.TabIndex = 12
-        Me.LblAllTriggers.Text = "All Triggers"
-        '
-        'LblAllActions
-        '
-        Me.LblAllActions.AutoSize = True
-        Me.LblAllActions.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblAllActions.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.LblAllActions.Location = New System.Drawing.Point(26, 462)
-        Me.LblAllActions.Margin = New System.Windows.Forms.Padding(6, 0, 6, 0)
-        Me.LblAllActions.Name = "LblAllActions"
-        Me.LblAllActions.Size = New System.Drawing.Size(124, 25)
-        Me.LblAllActions.TabIndex = 13
-        Me.LblAllActions.Text = "All Actions"
-        '
         'Form1
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(11.0!, 24.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1212, 1141)
-        Me.Controls.Add(Me.LblAllActions)
-        Me.Controls.Add(Me.LblAllTriggers)
-        Me.Controls.Add(Me.Label1)
+        Me.ClientSize = New System.Drawing.Size(881, 727)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.ListAccounts)
         Me.Controls.Add(Me.WebBrowser1)
@@ -187,11 +145,10 @@ Partial Class Form1
         Me.Controls.Add(Me.BtnAddAccount)
         Me.Controls.Add(Me.BtnExit)
         Me.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
         Me.Name = "Form1"
         Me.Text = "ThinkAutomationReports"
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
     Friend WithEvents BtnExit As Button
@@ -203,7 +160,4 @@ Partial Class Form1
     Friend WithEvents WebBrowser1 As WebBrowser
     Friend WithEvents ListAccounts As ListBox
     Friend WithEvents Button1 As Button
-    Friend WithEvents Label1 As Label
-    Friend WithEvents LblAllTriggers As Label
-    Friend WithEvents LblAllActions As Label
 End Class
