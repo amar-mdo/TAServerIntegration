@@ -2,9 +2,14 @@
 Imports System.Net
 Imports ThinkAutomationCore
 Imports System.IO
+Imports System.Xml
+Imports System.Data.SqlClient
+Imports System.Data
 Public Class Form1
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+    Dim fPath As String = "C:\MDO\ThinkAutomationTest\"
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Me.AutoSize = True
 
     End Sub
 
@@ -54,8 +59,7 @@ Public Class Form1
     Private Sub WriteAccountDetailsToFile(AccountName As String)
         If AccountName.Length = 0 Then Exit Sub
 
-        Dim fPath As String = "C:\MDO\ThinkAutomationTest\"
-        'Dim fFileName As String = AccountName + "-" + Now.ToString("s") + ".txt"
+
         Dim fFileName As String = AccountName + ".txt"
 
         Dim sw As StreamWriter = Nothing
@@ -102,101 +106,209 @@ Public Class Form1
     End Sub
     Private Sub AddAccount(strAccount As String)
         If strAccount.Length = 0 Then Exit Sub
+
+        Dim intAccountId As Integer
+        Dim strIMAPAccount As String
+        Dim strDropBoxSubject As String
+        Dim strIMAPServer As String
+        Dim strIMAPFolder As String
+        Dim strIMAPMoveToFolder As String
+        Dim intCheckEveryMins As Integer
+
+        Dim connetionString As String
+        Dim connection, UpdateConnection As SqlConnection
+        Dim command, commandUpdate As SqlCommand
+        Dim sql, UpdateSql As String
+
+        connetionString = "Data Source=169.53.175.117;UID=exceluser;PWD=c4Ua8qPNJ4X804r;DATABASE=Perspective"
+        sql = "select * from taaccounts where hastaaccountsetup = 0 and AccountName = '" + strAccount + "'"
+
+        connection = New SqlConnection(connetionString)
+        Try
+            connection.Open()
+            command = New SqlCommand(sql, connection)
+            command.ExecuteNonQuery()
+            'Create a Recordset object, populate it with the query results
+            Dim objDR As SqlDataReader = command.ExecuteReader()
+
+            If Not (objDR Is Nothing) AndAlso objDR.HasRows Then
+                While objDR.Read
+                    intAccountId = objDR("AccountId")
+                    strIMAPAccount = objDR("IMAPAccount").ToString
+                    strDropBoxSubject = objDR("DropBoxSubject").ToString
+                    strIMAPServer = objDR("IMAPServer").ToString
+                    strIMAPFolder = objDR("IMAPFolder").ToString
+                    strIMAPMoveToFolder = objDR("IMAPMoveToFolder").ToString
+                    intCheckEveryMins = objDR("CheckEveryMins")
+
+                    If CreateTAServerAccount(strAccount, strIMAPAccount, strDropBoxSubject, strIMAPServer, strIMAPFolder, strIMAPMoveToFolder, intCheckEveryMins) Then
+                        UpdateConnection = New SqlConnection(connetionString)
+                        UpdateConnection.Open()
+                        UpdateSql = "update taaccounts set HasTAAccountSetUp = 1 where AccountId = " + CStr(intAccountId)
+                        commandUpdate = New SqlCommand(UpdateSql, UpdateConnection)
+                        commandUpdate.ExecuteNonQuery()
+                        commandUpdate.Dispose()
+                        UpdateConnection.Close()
+                        MsgBox("Added the Account: " + strAccount + " to the TA Server !!")
+                    Else
+                        MsgBox("Unable to Add the Account: " + strAccount + " to the TA Server !!")
+                    End If
+                End While
+            Else
+                MsgBox("Unable to Find the Given Account in the Database" + vbNewLine + "The Account Name provided is either incorrect or it has already been Added to the TA Server !!")
+            End If
+
+            command.Dispose()
+            connection.Close()
+        Catch ex As Exception
+            MsgBox("Perspective Database ERROR! Cause: " + ex.Message)
+        End Try
+
+
+    End Sub
+    Private Function CreateTAServerAccount(strAccount As String, strIMAPAccount As String, strDropBoxSubject As String, strIMAPServer As String, strIMAPFolder As String, strIMAPMoveToFolder As String, intCheckEveryMins As Integer) As Boolean
+        Dim blnAccountAdded As Boolean = vbFalse
+        Dim blnAccountAlreadyExists As Boolean = vbFalse
         ' login to ThinkAutomation on 127.0.0.1:8855
         If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
-            ' logged in OK
-            MsgBox("Logged In")
 
-            Dim NewAccount As New ThinkAutomationCore.ThinkAutomation.clsAccount
+            'First Check If the Account Already Exists
+            For Each ThisAccount In ThinkAutomation.Accounts
+                If ThisAccount.Name = strAccount Then
+                    blnAccountAlreadyExists = vbTrue
+                End If
+            Next
 
-            NewAccount.Name = strAccount
-            MsgBox("Adding Account: " & strAccount)
-            ' add the new account to the collection and save it on the server
+            ' Add the Account only if it Does not Exist in the TA Server
+            If blnAccountAlreadyExists Then
+                MsgBox("TA Server Account: " + strAccount + " already Exists cannot add Duplicate!!")
+            Else
+                Dim NewAccount As New ThinkAutomationCore.ThinkAutomation.clsAccount
 
-            If ThinkAutomationCore.ThinkAutomation.Accounts.AddAndSave(NewAccount) Then MsgBox("Account Added") Else MsgBox("Unable to Add Account!")
+                NewAccount.Name = strAccount
+                NewAccount.IMAPAccount = strIMAPAccount
+                NewAccount.DropBoxToAddress = strIMAPAccount
+                NewAccount.DropBoxSubject = strDropBoxSubject
+                NewAccount.IMAPServer = strIMAPServer
+                NewAccount.IMAPFolder = strIMAPFolder
+                NewAccount.IMAPMoveToFolder = strIMAPMoveToFolder
+                NewAccount.CheckEveryMins = intCheckEveryMins
 
+
+                ' add the new account to the collection and save it on the server
+                If ThinkAutomationCore.ThinkAutomation.Accounts.AddAndSave(NewAccount) Then
+                    Dim SelectedAccount As New ThinkAutomation.clsAccount
+                    For Each ThisAccount In ThinkAutomation.Accounts
+                        If ThisAccount.Name = strAccount Then
+
+                            SelectedAccount = ThisAccount
+                            SelectedAccount.IMAPAccount = strIMAPAccount
+                            SelectedAccount.DropBoxToAddress = strIMAPAccount
+                            SelectedAccount.DropBoxSubject = "Message From ThinkAutomation Client"
+                            SelectedAccount.IMAPServer = strIMAPServer
+                            SelectedAccount.IMAPFolder = strIMAPFolder
+                            SelectedAccount.IMAPMoveToFolder = strIMAPMoveToFolder
+                            SelectedAccount.IMAPPort = 993
+                            SelectedAccount.CheckEveryMins = intCheckEveryMins
+
+
+                            SelectedAccount.IMAP = vbTrue
+                            SelectedAccount.IMAPLeaveMessageOn = vbTrue
+                            SelectedAccount.IMAPMove = vbTrue
+                            SelectedAccount.IMAPSSL = vbTrue
+                            SelectedAccount.IMAPOAuth = vbTrue
+                            SelectedAccount.IMAPNoPauseOnThrottle = vbTrue
+
+                            Dim LastCheckedDate As DateTime = #2000-01-01 00:00:00#
+                            Dim ServerLastEmailDate As DateTime = #2017-11-19 00:00:00#
+                            SelectedAccount.LastChecked = LastCheckedDate
+                            SelectedAccount.ServerLastEmail = ServerLastEmailDate
+                            SelectedAccount.ServerPort = 110
+                            SelectedAccount.StoreFull = vbTrue
+                            SelectedAccount.MailServerPOP3 = vbTrue
+                            SelectedAccount.DBMSGBody = vbTrue
+                            SelectedAccount.HTTPFollow = vbTrue
+                            SelectedAccount.HTTPClean = vbTrue
+                            SelectedAccount.UnzipAttachments = vbTrue
+                            SelectedAccount.Schedule = "030|YYYYYYY"
+                            SelectedAccount.Dropbox = vbTrue
+                            SelectedAccount.Archive = vbTrue
+                            SelectedAccount.ArchiveDays = 3
+                            SelectedAccount.MarkAsReadType = 2
+
+                            SelectedAccount.Enabled = vbFalse
+                            SelectedAccount.Save()
+                        End If
+                    Next
+                    blnAccountAdded = True
+                Else
+                    MsgBox("Unable to Add Account: " + strAccount + " !!")
+                End If
+            End If
         Else
-            Console.WriteLine("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
+            MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
         End If
-    End Sub
-    Private Sub AddTrigger(strAccount As String)
+        Return blnAccountAdded
+
+    End Function
+    Private Sub AddTrigger(strAccount As String, strTriggerName As String)
         Dim ThisAccount As ThinkAutomation.clsAccount
 
-        If strAccount.Length = 0 Then Exit Sub
+        If strAccount.Length = 0 Or strTriggerName.Length = 0 Then Exit Sub
 
         ' login to ThinkAutomation on 127.0.0.1:8855
         If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
-            ' logged in OK
-            MsgBox("Logged In")
-
-            Dim Name As String = InputBox("Enter The Trigger Name", "ThinkAutomation")
-
-            If Name.Length = 0 Then Exit Sub
 
             ' create a new trigger
 
             Dim NewTrigger As New ThinkAutomation.clsAccountTrigger
-            NewTrigger.Name = Name
-            NewTrigger.CheckBodyAlso = True
-            NewTrigger.SubjectLineLIKE = "*TEST*"
-
-            ' create some field extraction
-
-            Dim Field As New ThinkAutomation.clsTriggerField
-            Field.Name = "Subject"
-            Field.ExtractBuiltIn = True
-            Field.ExtractBuiltInField = "%msg_subject%"
-
-
-            Dim Field2 As New ThinkAutomation.clsTriggerField
-            Field2.Name = "TestField"
-            Field2.LookFor = "ID"
-            Field2.ThenLookFor = ":"
-            Field2.Until_EndOfLine = True
-
-            ' add the fields to the fieldstoprocess collection
-
-            NewTrigger.FieldsToProcess.Add(Field)
-            NewTrigger.FieldsToProcess.Add(Field2)
-
-
-            ' create some default actions
-            Dim Comment As New ThinkAutomation.clsActionComment
-            Comment.Comment = "Actions Go Here"
-            Dim Popup As New ThinkAutomation.clsActionPopup
-            Popup.PopupMessage = "%Subject% %TestField%"
+            NewTrigger.Name = strTriggerName
+            NewTrigger.Enabled = vbTrue
+            NewTrigger.HelperMessage = "#xD;#xA;#xD;#xA;"
+            NewTrigger.HelperSubject = "Night Audit 10/26/17"
+            NewTrigger.HelperTo = "lsimpkins@pacificahost.com,sloag@mydigitaloffice.ca"
 
 
             Dim IfBlock As New ThinkAutomation.clsActionLogical
             IfBlock.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.IfBlock
 
             ' build condition for if block
-
             Dim Condition As New ThinkAutomation.colConditionLines
             Dim MsgBodyIsNotBlank As New ThinkAutomation.clsConditionLine
-            MsgBodyIsNotBlank.IfValue = "%msg_body%"
-            MsgBodyIsNotBlank.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.IsNotBlank
-
+            MsgBodyIsNotBlank.IfValue = "%msg_to%"
+            MsgBodyIsNotBlank.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+            MsgBodyIsNotBlank.Value = "lbbdt@mydigitaloffice.ca"
             Condition.Add(MsgBodyIsNotBlank)
-            Dim SubjectContainsTest As New ThinkAutomation.clsConditionLine
-            SubjectContainsTest.IfValue = "%Subject%"
-            SubjectContainsTest.IsAnd = True
 
+            Dim SubjectContainsTest As New ThinkAutomation.clsConditionLine
+            SubjectContainsTest.IsOr = True
+            SubjectContainsTest.IfValue = "%msg_from%"
             SubjectContainsTest.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
-            SubjectContainsTest.Value = "test"
+            SubjectContainsTest.Value = "infoDelivery@mi.mymicros.net"
             Condition.Add(SubjectContainsTest)
 
+            'MsgBox("Adding Trigger Condition AS: " + Condition.XML)
+            NewTrigger.Condition = Condition.XML
+            'MsgBox("Added Trigger Condition AS: " + NewTrigger.Condition)
 
-            IfBlock.Condition = Condition.XML
+            'IfBlock.Condition = Condition.XML
+
+
+            'IfBlock.Condition = "<Lines><Line>|%msg_to%|?|lbbdt@mydigitaloffice.ca</Line><Line>Or|%msg_from%|?|infoDelivery@mi.mymicros.net</Line></Lines>"
             Dim EndIfBlock As New ThinkAutomation.clsActionLogical
             EndIfBlock.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.EndIfBlock
 
+
+
+            'NewTrigger.CheckBodyAlso = True
+            'NewTrigger.SubjectLineLIKE = "*TEST*"
+
             ' add the actions in the order we want them processed
 
-            NewTrigger.ActionList.Add(Comment)
-            NewTrigger.ActionList.Add(IfBlock)
-            NewTrigger.ActionList.Add(Popup)
-            NewTrigger.ActionList.Add(EndIfBlock)
+            'NewTrigger.ActionList.Add(Comment)
+            'NewTrigger.ActionList.Add(IfBlock)
+            'NewTrigger.ActionList.Add(Popup)
+            'NewTrigger.ActionList.Add(EndIfBlock)
 
 
             ' add the trigger to the selected account's collection and save it on the server
@@ -208,11 +320,9 @@ Public Class Form1
             Next
             If SelectedAccount.Triggers.AddAndSave(NewTrigger) Then
                 MsgBox("Trigger Added")
-                ' add a message to test
-                NewTrigger.AddMessageToProcess("stephen@parkersoft.co.uk", "test@test.com", "Test Subject", "Test Body" & vbCrLf & vbCrLf & "ID: 12345" & vbCrLf)
             End If
         Else
-            Console.WriteLine("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
+            MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
         End If
     End Sub
 
@@ -408,19 +518,83 @@ Public Class Form1
     End Sub
 
     Private Sub BtnAddTrigger_Click(sender As Object, e As EventArgs) Handles BtnAddTrigger.Click
-        Dim Name As String = InputBox("Enter The Account Name", "ThinkAutomation")
-        If Name.Length = 0 Then Exit Sub
-        AddTrigger(Name)
+        If ListAccounts.SelectedItems.Count = 0 Then
+            MsgBox("Please select the Account For which you want to add a Trigger!")
+        Else
+            Dim AccountName As String = LTrim(ListAccounts.SelectedItems(0))
+            If AccountName.Length = 0 Then Exit Sub
+            Dim TriggerName As String = InputBox("Enter the Name for the Trigger", "ThinkAutomation Server")
+            If TriggerName.Length = 0 Then
+                MsgBox("Name for the Trigger is Required !")
+                Exit Sub
+            Else
+                MsgBox("Will be adding the Trigger: " + TriggerName + ", for the Account: " + AccountName)
+                AddTrigger(AccountName, TriggerName)
+            End If
+        End If
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        ' MsgBox("Hello, you can add Action here!")
-        Dim Name As String = InputBox("Enter The Account Name", "ThinkAutomation")
-        If Name.Length = 0 Then Exit Sub
-        Dim NameTrigger As String = InputBox("Enter the Trigger Name", "ThinkAutomation")
-        If Name.Length = 0 Then Exit Sub
-        AddAction(Name)
+    Private Sub BtnAddAction_Click(sender As Object, e As EventArgs) Handles BtnAddAction.Click
+        If ListAccounts.SelectedItems.Count = 0 Or ListTriggers.SelectedItems.Count = 0 Then
+            MsgBox("Please select the Account and the Trigger For which you want to add the Action!")
+        Else
+            Dim AccountName As String = LTrim(ListAccounts.SelectedItems(0))
+            Dim TriggerName As String = LTrim(ListTriggers.SelectedItems(0))
+
+            If TriggerName.Length = 0 Then Exit Sub
+            Dim ActionName As String = InputBox("Enter the Name for the Action", "ThinkAutomation Server")
+            If ActionName.Length = 0 Then
+                MsgBox("Name for the Action is Required !")
+                Exit Sub
+            Else
+                MsgBox("Will be adding the Action: " + ActionName + ", for the Trigger: " + TriggerName + ", for the Account: " + AccountName)
+                'AddAction(AccountName,TriggerName, ActionName)
+            End If
+
+        End If
 
     End Sub
 
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+
+
+        Try
+            Dim m_xmld As XmlDocument
+            Dim m_nodelist As XmlNodeList
+            Dim m_node As XmlNode
+            Dim i As Integer
+
+            'Create the XML Document
+            m_xmld = New XmlDocument()
+            'Load the Xml file
+            m_xmld.Load(fPath + "NewInsignia.xml")
+
+            m_nodelist = m_xmld.SelectNodes("Account")
+
+            'Loop through the nodes
+            i = 0
+            For Each m_node In m_nodelist
+                'Loop through the Childnodes
+                For Each m_ChildNode In m_node.ChildNodes
+                    If m_node.ChildNodes.Item(i).Name = "IMAPAccount" Then
+                        MsgBox(m_node.ChildNodes.Item(i).Name + " : " + m_node.ChildNodes.Item(i).InnerText)
+                    End If
+                    If m_node.ChildNodes.Item(i).Name = "IMAPServer" Then
+                        MsgBox(m_node.ChildNodes.Item(i).Name + " : " + m_node.ChildNodes.Item(i).InnerText)
+                    End If
+                    If m_node.ChildNodes.Item(i).Name = "IMAPFolder" Then
+                        MsgBox(m_node.ChildNodes.Item(i).Name + " : " + m_node.ChildNodes.Item(i).InnerText)
+                    End If
+                    If m_node.ChildNodes.Item(i).Name = "IMAPSubject" Then
+                        MsgBox(m_node.ChildNodes.Item(i).Name + " : " + m_node.ChildNodes.Item(i).InnerText)
+                    End If
+
+                    i = i + 1
+                Next
+            Next
+        Catch errorVariable As Exception
+            'Error trapping
+            MsgBox(errorVariable.ToString())
+        End Try
+    End Sub
 End Class
