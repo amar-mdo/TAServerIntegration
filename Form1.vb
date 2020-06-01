@@ -8,6 +8,7 @@ Imports System.Data
 Public Class Form1
 
     Dim fPath As String = "C:\MDO\ThinkAutomationTest\"
+    Dim gConnectionString As String = "Data Source=169.53.175.117;UID=exceluser;PWD=c4Ua8qPNJ4X804r;DATABASE=Perspective"
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.AutoSize = True
     End Sub
@@ -109,15 +110,15 @@ Public Class Form1
         Dim strIMAPMoveToFolder As String
         Dim intCheckEveryMins As Integer
 
-        Dim connectionString As String
+
         Dim connection, UpdateConnection As SqlConnection
         Dim command, commandUpdate As SqlCommand
         Dim sql, UpdateSql As String
 
-        connectionString = "Data Source=169.53.175.117;UID=exceluser;PWD=c4Ua8qPNJ4X804r;DATABASE=Perspective"
+
         sql = "select * from taaccounts where hastaaccountsetup = 0 and AccountName = '" + strAccount + "'"
 
-        connection = New SqlConnection(connectionString)
+        connection = New SqlConnection(gConnectionString)
         Try
             connection.Open()
             command = New SqlCommand(sql, connection)
@@ -136,7 +137,7 @@ Public Class Form1
                     intCheckEveryMins = objDR("CheckEveryMins")
 
                     If CreateTAServerAccount(strAccount, strIMAPAccount, strDropBoxSubject, strIMAPServer, strIMAPFolder, strIMAPMoveToFolder, intCheckEveryMins) Then
-                        UpdateConnection = New SqlConnection(connectionString)
+                        UpdateConnection = New SqlConnection(gConnectionString)
                         UpdateConnection.Open()
                         UpdateSql = "update taaccounts set HasTAAccountSetUp = 1 where AccountId = " + CStr(intAccountId)
                         commandUpdate = New SqlCommand(UpdateSql, UpdateConnection)
@@ -263,10 +264,7 @@ Public Class Form1
             NewTrigger.HelperTo = "lsimpkins@pacificahost.com,sloag@mydigitaloffice.ca"
 
 
-            Dim IfBlock As New ThinkAutomation.clsActionLogical
-            IfBlock.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.IfBlock
-
-            ' build condition for if block
+            ' build the condition 
             Dim Condition As New ThinkAutomation.colConditionLines
             Dim MsgBodyIsNotBlank As New ThinkAutomation.clsConditionLine
             MsgBodyIsNotBlank.IfValue = "%msg_to%"
@@ -281,16 +279,8 @@ Public Class Form1
             SubjectContainsTest.Value = "infoDelivery@mi.mymicros.net"
             Condition.Add(SubjectContainsTest)
 
-            'MsgBox("Adding Trigger Condition AS: " + Condition.XML)
+            'Assign the Condition
             NewTrigger.Condition = Condition.XML
-            'MsgBox("Added Trigger Condition AS: " + NewTrigger.Condition)
-
-            'IfBlock.Condition = Condition.XML
-
-
-            'IfBlock.Condition = "<Lines><Line>|%msg_to%|?|lbbdt@mydigitaloffice.ca</Line><Line>Or|%msg_from%|?|infoDelivery@mi.mymicros.net</Line></Lines>"
-            Dim EndIfBlock As New ThinkAutomation.clsActionLogical
-            EndIfBlock.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.EndIfBlock
 
 
             ' add the actions in the order we want them processed
@@ -349,23 +339,23 @@ Public Class Form1
     Private Sub AddMappTrigger(strAccount As String)
         If strAccount.Length = 0 Then Exit Sub
 
-        Dim intAccountId As Integer
-        Dim strIMAPAccount As String
-        Dim strDropBoxSubject As String
-        Dim strIMAPServer As String
-        Dim strIMAPFolder As String
-        Dim strIMAPMoveToFolder As String
-        Dim intCheckEveryMins As Integer
+        Dim intTriggerId As Integer
+        Dim strTriggerName As String
+        Dim strFromAddressLIKE As String
+        Dim strHelperMessage As String
+        Dim strHelperSubject As String
+        Dim strHelperTo As String
+        Dim intOrganizationID As Integer
+        Dim intHotelID As Integer
 
-        Dim connetionString As String
+
         Dim connection, UpdateConnection As SqlConnection
         Dim command, commandUpdate As SqlCommand
         Dim sql, UpdateSql As String
 
-        connetionString = "Data Source=169.53.175.117;UID=exceluser;PWD=c4Ua8qPNJ4X804r;DATABASE=Perspective"
-        sql = "select * from tatriggers where hastaaccountsetup = 0 and AccountName = '" + strAccount + "'"
+        sql = "select tt.* from tatriggers tt , TAAccounts ta where tt.hastaTriggersetup = 0 and tt.AccountID = ta.AccountID and ta.AccountName = '" + strAccount + "'"
 
-        connection = New SqlConnection(connetionString)
+        connection = New SqlConnection(gConnectionString)
         Try
             connection.Open()
             command = New SqlCommand(sql, connection)
@@ -375,25 +365,26 @@ Public Class Form1
 
             If Not (objDR Is Nothing) AndAlso objDR.HasRows Then
                 While objDR.Read
-                    intAccountId = objDR("AccountId")
-                    strIMAPAccount = objDR("IMAPAccount").ToString
-                    strDropBoxSubject = objDR("DropBoxSubject").ToString
-                    strIMAPServer = objDR("IMAPServer").ToString
-                    strIMAPFolder = objDR("IMAPFolder").ToString
-                    strIMAPMoveToFolder = objDR("IMAPMoveToFolder").ToString
-                    intCheckEveryMins = objDR("CheckEveryMins")
+                    intTriggerId = objDR("TriggerId")
+                    strTriggerName = objDR("TriggerName")
+                    strFromAddressLIKE = objDR("FromAddressLIKE").ToString
+                    strHelperMessage = objDR("HelperMessage").ToString
+                    strHelperSubject = objDR("HelperSubject").ToString
+                    strHelperTo = objDR("HelperTo").ToString
+                    intOrganizationID = objDR("OrganizationID").ToString
+                    intHotelID = objDR("HotelID")
 
-                    If CreateTAServerAccount(strAccount, strIMAPAccount, strDropBoxSubject, strIMAPServer, strIMAPFolder, strIMAPMoveToFolder, intCheckEveryMins) Then
-                        UpdateConnection = New SqlConnection(connetionString)
-                        UpdateConnection.Open()
-                        UpdateSql = "update taaccounts set HasTAAccountSetUp = 1 where AccountId = " + CStr(intAccountId)
-                        commandUpdate = New SqlCommand(UpdateSql, UpdateConnection)
-                        commandUpdate.ExecuteNonQuery()
-                        commandUpdate.Dispose()
-                        UpdateConnection.Close()
-                        MsgBox("Added the Account: " + strAccount + " to the TA Server !!")
+                    If CreateMAPPTrigger(strAccount, intTriggerId, strTriggerName, strFromAddressLIKE, strHelperMessage, strHelperSubject, strHelperTo, intOrganizationID, intHotelID) Then
+                        'UpdateConnection = New SqlConnection(gConnectionString)
+                        'UpdateConnection.Open()
+                        'UpdateSql = "update tatriggers set HasTAAccountSetUp = 1 where TriggerId = " + CStr(intTriggerId)
+                        'commandUpdate = New SqlCommand(UpdateSql, UpdateConnection)
+                        'commandUpdate.ExecuteNonQuery()
+                        'commandUpdate.Dispose()
+                        'UpdateConnection.Close()
+                        MsgBox("Added the Trigger(s) for the Account: " + strAccount + " to the TA Server !!")
                     Else
-                        MsgBox("Unable to Add the Account: " + strAccount + " to the TA Server !!")
+                        MsgBox("Unable to Add the Trigger(s) for the Account: " + strAccount + " to the TA Server !!")
                     End If
                 End While
             Else
@@ -406,83 +397,142 @@ Public Class Form1
             MsgBox("Perspective Database ERROR! Cause: " + ex.Message)
         End Try
     End Sub
-    Private Sub CreateTAServerAccountTrigger(strAccount As String, strTriggerName As String)
+    Private Function CreateMAPPTrigger(strAccount As String, intTriggerId As Integer, strTriggerName As String, strFromAddressLIKE As String, strHelperMessage As String, strHelperSubject As String, strHelperTo As String, intOrganizationID As Integer, intHotelID As Integer) As Boolean
         Dim ThisAccount As ThinkAutomation.clsAccount
+        Dim blnTriggerAdded As Boolean = vbFalse
 
-        If strAccount.Length = 0 Or strTriggerName.Length = 0 Then Exit Sub
+        If strAccount.Length = 0 Or strTriggerName.Length = 0 Then Return False
 
         ' login to ThinkAutomation on 127.0.0.1:8855
         If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
 
             ' create a new trigger
-
             Dim NewTrigger As New ThinkAutomation.clsAccountTrigger
             NewTrigger.Name = strTriggerName
             NewTrigger.Enabled = vbTrue
-            NewTrigger.HelperMessage = "#xD;#xA;#xD;#xA;"
-            NewTrigger.HelperSubject = "Night Audit 10/26/17"
-            NewTrigger.HelperTo = "lsimpkins@pacificahost.com,sloag@mydigitaloffice.ca"
+            NewTrigger.FromAddressLIKE = strFromAddressLIKE
+            NewTrigger.HelperMessage = strHelperMessage
+            NewTrigger.HelperSubject = strHelperSubject
+            NewTrigger.HelperTo = strHelperTo
+
+            ' Get the Trigger Conditions specific for this Trigger from the DataBase
+            Dim connection As SqlConnection
+            Dim command As SqlCommand
+            Dim TriggerConditionsql As String
+            Dim i As Integer
+
+            TriggerConditionsql = "select * from TATrigConditions where TriggerID = " + CStr(intTriggerId) + " order by TriggerConditionId"
+
+            connection = New SqlConnection(gConnectionString)
+            Try
+                connection.Open()
+                command = New SqlCommand(TriggerConditionsql, connection)
+                command.ExecuteNonQuery()
+                'Create a Recordset object, populate it with the query results
+                Dim objDR As SqlDataReader = command.ExecuteReader()
+
+                If Not (objDR Is Nothing) AndAlso objDR.HasRows Then
+                    i = 1
+                    Dim Condition As New ThinkAutomation.colConditionLines
 
 
-            Dim IfBlock As New ThinkAutomation.clsActionLogical
-            IfBlock.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.IfBlock
+                    While objDR.Read
+                        If (i < 2) Then
+                            Dim MsgBodyIsNotBlank As New ThinkAutomation.clsConditionLine
+                            MsgBodyIsNotBlank.IfValue = objDR("IfValue")
+                            MsgBodyIsNotBlank.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+                            MsgBodyIsNotBlank.Value = objDR("ContainsValue")
+                            Condition.Add(MsgBodyIsNotBlank)
+                        Else
+                            Dim SubjectContainsTest As New ThinkAutomation.clsConditionLine
+                            SubjectContainsTest.IsOr = True
 
-            ' build condition for if block
-            Dim Condition As New ThinkAutomation.colConditionLines
-            Dim MsgBodyIsNotBlank As New ThinkAutomation.clsConditionLine
-            MsgBodyIsNotBlank.IfValue = "%msg_to%"
-            MsgBodyIsNotBlank.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
-            MsgBodyIsNotBlank.Value = "lbbdt@mydigitaloffice.ca"
-            Condition.Add(MsgBodyIsNotBlank)
+                            SubjectContainsTest.IfValue = objDR("IfValue")
+                            SubjectContainsTest.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+                            SubjectContainsTest.Value = objDR("ContainsValue")
+                            Condition.Add(SubjectContainsTest)
+                        End If
 
-            Dim SubjectContainsTest As New ThinkAutomation.clsConditionLine
-            SubjectContainsTest.IsOr = True
-            SubjectContainsTest.IfValue = "%msg_from%"
-            SubjectContainsTest.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
-            SubjectContainsTest.Value = "infoDelivery@mi.mymicros.net"
-            Condition.Add(SubjectContainsTest)
+                        i = i + 1
+                    End While
+                    NewTrigger.Condition = Condition.XML
+                Else
+                    MsgBox("Unable to Find the Given Account in the Database" + vbNewLine + "The Account Name provided is either incorrect or it has already been Added to the TA Server !!")
+                End If
 
-
-            NewTrigger.Condition = Condition.XML
-
-
-
-            ' add the actions in the order we want them processed
-
-            Dim IfBlock1 As New ThinkAutomation.clsActionLogical
-            IfBlock1.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.IfBlock
-
-            ' build condition for if block
-            Dim Condition1 As New ThinkAutomation.colConditionLines
-            Dim MsgBodyIsNotBlank1 As New ThinkAutomation.clsConditionLine
-            MsgBodyIsNotBlank1.IfValue = "%msg_attachments%"
-            MsgBodyIsNotBlank1.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
-            MsgBodyIsNotBlank1.Value = "xls"
-            Condition1.Add(MsgBodyIsNotBlank1)
-
-            'Dim SubjectContainsTest1 As New ThinkAutomation.clsConditionLine
-            'SubjectContainsTest1.IsOr = True
-            'SubjectContainsTest1.IfValue = "%msg_from%"
-            'SubjectContainsTest1.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
-            'SubjectContainsTest1.Value = "infoDelivery@mi.mymicros.net"
-            'Condition1.Add(SubjectContainsTest1)
-
-            IfBlock1.Condition = Condition1.XML
+                command.Dispose()
+                connection.Close()
+            Catch ex As Exception
+                MsgBox("Perspective Database ERROR! Cause: " + ex.Message)
+            End Try
 
 
-            'IfBlock1.Condition = "<Lines><Line>|%msg_to%|?|lbbdt@mydigitaloffice.ca</Line><Line>Or|%msg_from%|?|infoDelivery@mi.mymicros.net</Line></Lines>"
+            ' add the actions that will be processed
+            ' Get the Trigger Conditions specific for this Trigger from the DataBase
+            Dim ActionConnection As SqlConnection
+            Dim Actioncommand As SqlCommand
+            Dim TriggerActionSql As String
+            Dim j As Integer
 
-            Dim EndIfBlock1 As New ThinkAutomation.clsActionLogical
-            EndIfBlock1.LogicalType = ThinkAutomation.clsActionLogical.LogicalTypeNo.EndIfBlock
+            TriggerActionSql = "select * from TATrigActions where TriggerID = " + CStr(intTriggerId) + " order by TriggerActionId"
 
-            Dim AttachmentClass As New ThinkAutomation.clsActionAttach
-            AttachmentClass.Condition = Condition1.XML
-            AttachmentClass.Mask = "JFKQA*"
-            AttachmentClass.SaveTo = "F:\TA - Attachments - MYP\3874\1170\OnQ\ForcastRoomRevenue"
-            AttachmentClass.Overwrite = vbTrue
+            ActionConnection = New SqlConnection(gConnectionString)
+            Try
+                ActionConnection.Open()
+                Actioncommand = New SqlCommand(TriggerActionSql, ActionConnection)
+                Actioncommand.ExecuteNonQuery()
+                'Create a Recordset object, populate it with the query results
+                Dim objActionDR As SqlDataReader = Actioncommand.ExecuteReader()
 
-            ' add the actions in the order we want them processed
-            NewTrigger.ActionList.Add(AttachmentClass)
+                If Not (objActionDR Is Nothing) AndAlso objActionDR.HasRows Then
+
+                    While objActionDR.Read
+                        Dim ActionCondition As New ThinkAutomation.colConditionLines
+                        Dim ActionMsgBodyIsNotBlank As New ThinkAutomation.clsConditionLine
+                        Dim ActionMsgBodyIsNotBlank1 As New ThinkAutomation.clsConditionLine
+
+                        ActionMsgBodyIsNotBlank.IfValue = objActionDR("IfValue")
+                        ActionMsgBodyIsNotBlank.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+                        ActionMsgBodyIsNotBlank.Value = objActionDR("ContainsValue")
+                        ActionCondition.Add(ActionMsgBodyIsNotBlank)
+
+                        If (objActionDR("IsOrAnd") = "AND") Then
+                            ActionMsgBodyIsNotBlank1.IsAnd = True
+                            ActionMsgBodyIsNotBlank1.IfValue = objActionDR("IfValue2")
+                            ActionMsgBodyIsNotBlank1.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+                            ActionMsgBodyIsNotBlank1.Value = objActionDR("ContainsValue2")
+                            ActionCondition.Add(ActionMsgBodyIsNotBlank1)
+                        End If
+
+                        If (objActionDR("IsOrAnd") = "OR") Then
+                            ActionMsgBodyIsNotBlank1.IsOr = True
+                            ActionMsgBodyIsNotBlank1.IfValue = objActionDR("IfValue2")
+                            ActionMsgBodyIsNotBlank1.IsOperator = ThinkAutomation.clsConditionLine.IsOperatorType.Contains
+                            ActionMsgBodyIsNotBlank1.Value = objActionDR("ContainsValue2")
+                            ActionCondition.Add(ActionMsgBodyIsNotBlank1)
+                        End If
+
+
+                        Dim AttachmentClass As New ThinkAutomation.clsActionAttach
+                        AttachmentClass.Condition = ActionCondition.XML
+                        AttachmentClass.Mask = objActionDR("FileMask")
+                        AttachmentClass.SaveTo = objActionDR("FileSaveTo")
+
+
+                        AttachmentClass.Overwrite = vbTrue
+
+                        NewTrigger.ActionList.Add(AttachmentClass)
+                    End While
+                Else
+                    MsgBox("Unable to Find the Given Account in the Database" + vbNewLine + "The Account Name provided is either incorrect or it has already been Added to the TA Server !!")
+                End If
+
+                Actioncommand.Dispose()
+                ActionConnection.Close()
+            Catch ex As Exception
+                MsgBox("Perspective Database ERROR! Cause: " + ex.Message)
+            End Try
+
 
 
             ' add the trigger to the selected account's collection and save it on the server
@@ -493,12 +543,13 @@ Public Class Form1
                 End If
             Next
             If SelectedAccount.Triggers.AddAndSave(NewTrigger) Then
-                MsgBox("Trigger Added")
+                blnTriggerAdded = vbTrue
             End If
         Else
             MsgBox("Could not login. Is ThinkAutomation Server running? " & ThinkAutomation.SystemErrorLast)
         End If
-    End Sub
+        Return blnTriggerAdded
+    End Function
 
 
     Public Sub ListAllAccounts()
@@ -610,5 +661,19 @@ Public Class Form1
     End Sub
     Private Sub BtnExit_Click(sender As Object, e As EventArgs) Handles BtnExit.Click
         Application.Exit()
+    End Sub
+
+    Private Sub BtmAddMappTrigger_Click(sender As Object, e As EventArgs) Handles BtmAddMappTrigger.Click
+        If ListAccounts.SelectedItems.Count = 0 Then
+            MsgBox("Please select the Account For which you want to add a Trigger!")
+        Else
+            Dim AccountName As String = LTrim(ListAccounts.SelectedItems(0))
+            If AccountName.Length = 0 Then
+                Exit Sub
+            Else
+                MsgBox("Will be adding the Trigger(s) from the Database for the Account: " + AccountName)
+                AddMappTrigger(AccountName)
+            End If
+        End If
     End Sub
 End Class

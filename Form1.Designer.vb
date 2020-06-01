@@ -33,6 +33,7 @@ Partial Class Form1
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LblAllTriggers = New System.Windows.Forms.Label()
         Me.LblAllActions = New System.Windows.Forms.Label()
+        Me.BtmAddMappTrigger = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'BtnExit
@@ -49,7 +50,7 @@ Partial Class Form1
         'BtnAddAccount
         '
         Me.BtnAddAccount.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnAddAccount.Location = New System.Drawing.Point(348, 1020)
+        Me.BtnAddAccount.Location = New System.Drawing.Point(257, 1022)
         Me.BtnAddAccount.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnAddAccount.Name = "BtnAddAccount"
         Me.BtnAddAccount.Size = New System.Drawing.Size(150, 50)
@@ -60,7 +61,7 @@ Partial Class Form1
         'BtnAddTrigger
         '
         Me.BtnAddTrigger.ForeColor = System.Drawing.SystemColors.Highlight
-        Me.BtnAddTrigger.Location = New System.Drawing.Point(676, 1020)
+        Me.BtnAddTrigger.Location = New System.Drawing.Point(508, 1022)
         Me.BtnAddTrigger.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnAddTrigger.Name = "BtnAddTrigger"
         Me.BtnAddTrigger.Size = New System.Drawing.Size(150, 50)
@@ -157,11 +158,23 @@ Partial Class Form1
         Me.LblAllActions.TabIndex = 13
         Me.LblAllActions.Text = "All Actions"
         '
+        'BtmAddMappTrigger
+        '
+        Me.BtmAddMappTrigger.ForeColor = System.Drawing.SystemColors.Highlight
+        Me.BtmAddMappTrigger.Location = New System.Drawing.Point(729, 1022)
+        Me.BtmAddMappTrigger.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtmAddMappTrigger.Name = "BtmAddMappTrigger"
+        Me.BtmAddMappTrigger.Size = New System.Drawing.Size(198, 50)
+        Me.BtmAddMappTrigger.TabIndex = 14
+        Me.BtmAddMappTrigger.Text = "Add MAPP Trigger"
+        Me.BtmAddMappTrigger.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(11.0!, 24.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1213, 1096)
+        Me.Controls.Add(Me.BtmAddMappTrigger)
         Me.Controls.Add(Me.LblAllActions)
         Me.Controls.Add(Me.LblAllTriggers)
         Me.Controls.Add(Me.Label1)
@@ -192,4 +205,5 @@ Partial Class Form1
     Friend WithEvents Label1 As Label
     Friend WithEvents LblAllTriggers As Label
     Friend WithEvents LblAllActions As Label
+    Friend WithEvents BtmAddMappTrigger As Button
 End Class
