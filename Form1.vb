@@ -8,6 +8,24 @@ Imports System.Data
 Public Class Form1
 
     Dim fPath As String = "C:\MDO\ThinkAutomationTest\"
+    'Dim strTAServerIp = "127.0.0.1:8855"
+    'Dim strTAServerIp = "169.53.175.121:8855"
+    'Dim strAdminUserName = "Admin"
+    'Dim strAdminUserPwd = ""
+
+    Dim strTAServerIp = "13.56.146.174"
+    ' Using IpV4 Address from 13.56.146.174
+    'Dim strTAServerIp = "172.31.10.60"
+
+    Dim strAdminUserName = "Admin"
+    Dim strAdminUserPwd = ""
+
+    'Dim strAdminUserName = "Administrator"
+    'Dim strAdminUserPwd = "fp*)C*Y5bz7"
+
+    'Dim strAdminUserName = "Amar"
+    'Dim strAdminUserPwd = "CEfwf8Xw"
+
     Dim gConnectionString As String = "Data Source=169.53.175.117;UID=exceluser;PWD=c4Ua8qPNJ4X804r;DATABASE=Perspective"
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.AutoSize = True
@@ -69,7 +87,7 @@ Public Class Form1
             blnAccountFound = False
 
             ' login to ThinkAutomation on 127.0.0.1:8855
-            If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+            If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
                 For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
 
                     If ThisAccount.Name = AccountName Then
@@ -165,7 +183,7 @@ Public Class Form1
         Dim blnAccountAdded As Boolean = vbFalse
         Dim blnAccountAlreadyExists As Boolean = vbFalse
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
 
             'First Check If the Account Already Exists
             For Each ThisAccount In ThinkAutomation.Accounts
@@ -252,7 +270,7 @@ Public Class Form1
         If strAccount.Length = 0 Or strTriggerName.Length = 0 Then Exit Sub
 
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
 
             ' create a new trigger
 
@@ -404,7 +422,7 @@ Public Class Form1
         If strAccount.Length = 0 Or strTriggerName.Length = 0 Then Return False
 
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
 
             ' create a new trigger
             Dim NewTrigger As New ThinkAutomation.clsAccountTrigger
@@ -556,7 +574,7 @@ Public Class Form1
         Dim ThisAccount As ThinkAutomation.clsAccount
 
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
 
             For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
                 ' Add each account to the ListBox
@@ -575,7 +593,7 @@ Public Class Form1
         blnAccountFound = False
 
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
             For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
 
                 If ThisAccount.Name = AccountName Then
@@ -608,7 +626,7 @@ Public Class Form1
         Dim ActionString As String
 
         ' login to ThinkAutomation on 127.0.0.1:8855
-        If ThinkAutomation.Server.Login("127.0.0.1:8855", "Admin", "") Then
+        If ThinkAutomation.Server.Login(strTAServerIp, strAdminUserName, strAdminUserPwd) Then
             For Each ThisAccount In ThinkAutomation.Accounts ' Accounts collection will contain all ThinkAutomation accounts after login
 
                 If ThisAccount.Name = AccountName Then
